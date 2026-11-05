@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light" />
+<title>UTEQ · Control de Aulas Digitales</title>
+<link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+<header id="appHeader" class="hidden"><div class="top"><div class="brand"><div class="emblem">U</div><div><h1>Control de Aulas Digitales</h1><p>Universidad Tecnológica de Querétaro · Estación de registro</p></div></div><div class="clock"><strong id="clock">--:--:--</strong><small id="todayLabel">—</small></div></div></header>
+<section id="loginGate" class="gate-screen" aria-label="Acceso autorizado">
+  <div class="gate-card">
+    <div class="gate-logo">UTEQ · Aulas Digitales</div>
+    <h2>Acceso a la estación</h2>
+    <p>Para conectar los registros a Neon, inicia sesión con una cuenta autorizada. No compartas la contraseña con los docentes.</p>
+    <div id="gateInfo" class="gate-alert">Preparando conexión segura…</div>
+    <form id="loginForm" class="gate-form">
+      <label>Correo autorizado<input id="loginEmail" type="email" autocomplete="username" required placeholder="usuario@uteq.edu.mx" /></label>
+      <label>Contraseña<input id="loginPassword" type="password" autocomplete="current-password" required minlength="8" /></label>
+      <button class="btn main" type="submit" id="loginButton">Iniciar sesión</button>
+    </form>
+    <p class="gate-help">Para el primer usuario, usa «Crear cuenta inicial» solo durante la configuración y después desactiva el registro público en Neon Auth.</p>
+    <button class="btn smallbtn" type="button" id="signupToggle">Crear cuenta inicial</button>
+  </div>
+</section>
+<main id="appMain" class="hidden">
+<section id="kioskView">
+ <div class="subheader"><div><h2>Registro de entrada y salida</h2><p class="muted small" style="margin:5px 0 0" id="kioskSubtitle">Las clases aparecen automáticamente cuando comienza su horario. Selecciona tu clase para registrar entrada o salida.</p></div><div class="actions"><span id="cloudStatus" class="tag" aria-live="polite">☁ Conectando...</span><button class="btn main smallbtn hidden" id="initializeSheet" type="button">Iniciar base nueva</button><span class="tag" id="termChip">Septiembre–Diciembre 2026</span><button class="btn smallbtn" id="logoutNeon" title="Cerrar sesión de Neon">Salir</button><button class="btn smallbtn" id="adminOpen">⚙ Administración</button></div></div>
+ <div class="kiosk-nav no-print" id="kioskNav" aria-label="Secciones de registro"><button class="btn chosen" data-kiosk-tab="classes">▤ Programa del día</button><button class="btn" data-kiosk-tab="free">◷ Espacios libres</button></div>
+ <div id="scheduledSection">
+ <section class="panel"><div class="filterrow"><div><h3 id="listTitle">Programa del día</h3><span class="muted small" id="listSubtitle">Clases en curso y solicitudes de uso libre de hoy</span></div><span class="live-chip"><span class="pulse-dot"></span> En tiempo real</span></div><div class="classes" id="classList"></div><div class="next-block" id="nextBlock" aria-live="polite"></div><div class="footnote">La entrada se activa únicamente desde el inicio de la clase o del horario solicitado para uso libre. La salida puede registrarse antes del horario previsto. Los horarios y movimientos se sincronizan con Neon Data API. La copia local permite recuperar cambios sin conexión; verifica el indicador de sincronización y genera respaldos periódicos.</div></section>
+ </div>
+ <div id="freeSection" class="hidden">
+  <section class="panel"><div class="filterrow"><div><h3>Disponibilidad para uso adicional</h3><p class="muted small" style="margin:5px 0 0">Consulta espacios sin clases y solicita su uso en esta misma estación. Se revisan las reservas existentes para evitar cruces.</p></div><div class="actions"><div class="field"><label for="freeDate">Fecha de consulta</label><input class="input" type="date" id="freeDate" /></div><button class="btn" id="freeToday" style="align-self:flex-end">Hoy</button></div></div>
+  <p class="muted small" id="freeSummary"></p><div class="space-grid" id="freeSlots"></div>
+  <div class="footnote">Horario de consulta: 07:00 a 22:00 h. Las clases regulares tienen prioridad y no se ofrecen sus bloques como espacios libres. Un uso se registra con hora solicitada, entrada y salida reales.</div></section>
+  <section class="panel"><div class="filterrow"><div><h3>Personas con uso registrado</h3><p class="muted small">Desde aquí pueden registrar su entrada o salida. Por privacidad, el correo y el motivo solo se muestran en Administración.</p></div><span class="tag" id="freeCount">0 solicitudes</span></div><div class="classes" id="freeUses"></div></section>
+ </div>
+</section>
+<section id="adminView" class="hidden"><div class="subheader"><div><h2>Panel de administración</h2><p class="muted small">Consulta la ocupación, prepara el siguiente cuatrimestre y descarga reportes.</p></div><button class="btn" id="adminClose">← Volver a registro</button></div><div class="admin-tabs no-print" id="adminTabs"><button class="btn chosen" data-tab="report">Por cuatrimestre</button><button class="btn" data-tab="annual">Reporte anual</button><button class="btn" data-tab="freeUses">Usos libres</button><button class="btn" data-tab="schedule">Horarios</button><button class="btn" data-tab="terms">Cuatrimestres</button><button class="btn" data-tab="mail">Avisos por correo</button><button class="btn" data-tab="settings">Respaldo y seguridad</button></div><div id="adminContent"></div></section>
+</main>
+<div id="overlay" class="hidden"></div><div id="toast" class="toast hidden"></div>
+<script src="config.js"></script>
+<script>window.UTEQ_NEON={}; window.UTEQ_NEON.ready=new Promise(resolve=>window.UTEQ_NEON._resolve=resolve);</script>
+<script type="module" src="neon-data.js"></script>
+<script>setTimeout(()=>{const msg=document.getElementById('gateInfo');if(msg&&msg.textContent.includes('Preparando conexión')){msg.textContent='No se pudo cargar el cliente de Neon. Revisa tu conexión a Internet y la consola del navegador (F12).';msg.classList.add('error');}},12000);</script>
+<script src="horarios.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

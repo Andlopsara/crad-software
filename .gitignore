@@ -1,0 +1,6 @@
+*.json.bak
+*respaldo*.json
+*Respaldo*.json
+.env
+node_modules/
+.DS_Store
